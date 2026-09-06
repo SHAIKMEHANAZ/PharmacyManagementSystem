@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Enterprise Operations Hub</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --admin-theme: #2ecc71;
+            --sales-theme: #9b59b6;
+            --update-theme: #e67e22;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --border: #dcdde1;
+            --danger: #e74c3c;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f1f2f6;
+            color: var(--dark);
+        }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            background: var(--dark);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .view-switcher button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        .btn-admin-tab { background: #7f8c8d; color: white; }
+        .btn-sales-tab { background: #7f8c8d; color: white; }
+        .btn-logout { background: var(--danger) !important; color: white; }
+        .btn-login-nav { background: var(--primary); color: white; }
+        
+        .active-admin .btn-admin-tab { background: var(--admin-theme); }
+        .active-sales .btn-sales-tab { background: var(--sales-theme); }
+
+        .wrapper { max-width: 1300px; margin: 30px auto; padding: 0 20px; }
+        
+        /* --- VIEW CONTROLLERS --- */
+        .view-section { display: none; }
+        .active { display: block !important; }
+
+        /* --- HOME PAGE HERO --- */
+        .home-container { text-align: center; padding: 60px 20px; max-width: 900px; margin: 0 auto; }
+        .hero-title { font-size: 3rem; color: var(--dark); margin-bottom: 10px; }
+        .hero-subtitle { font-size: 1.3rem; color: #7f8c8d; margin-bottom: 40px; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .feature-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 4px solid var(--primary); }
+        .feature-card.admin-feat { border-top-color: var(--admin-theme); }
+        .feature-card.sales-feat { border-top-color: var(--sales-theme); }
+        .btn-cta { font-size: 1.2rem; padding: 15px 40px; background: var(--primary); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-cta:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* --- LOGIN SCREEN --- */
+        .login-container { max-width: 400px; margin: 80px auto; }
+        .login-header { text-align: center; margin-bottom: 25px; }
+
+        /* --- DASHBOARD GRID LAYOUTS --- */
+        .grid-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--dark); color: white; }
+
+        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: var(--admin-theme); color: white; width: 100%; padding: 12px; }
+        .btn-update-submit { background: var(--update-theme); color: white; width: 100%; padding: 12px; margin-top: 5px; }
+        .btn-sell { background: var(--sales-theme); color: white; width: 100%; padding: 12px; }
+        .btn-action-delete { background: var(--danger); color: white; }
+        .search-box { font-size: 1.1rem; padding: 12px; margin-bottom: 20px; border: 2px solid var(--primary); }
+        
+        .user-badge { background: #34495e; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    </style>
+</head>
+<body class="active-home">
+
+    <div class="navbar">
+        <h2 style="margin:0; cursor:pointer;" onclick="switchView('home')">💊 PHARMACY MANAGEMENT SYSTEM DASHBOARD</h2> 
+        <div class="view-switcher" id="navControls">
+            </div>
+    </div>
+
+    <div class="wrapper">
+        
+        <div id="homeView" class="view-section active">
+            <div class="home-container">
+                <h1 class="hero-title">Pharmacy Management System Operations</h1>
+                <p class="hero-subtitle">Secure enterprise inventory tracking and retail terminal ledgers in one ecosystem.</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card admin-feat">
+                        <h3>Stock & Procurement</h3>
+                        <p>Manage raw assets, track critical pharmaceutical listings, monitor structural updates and control expiry schedules.</p>
+                    </div>
+                    <div class="feature-card sales-feat">
+                        <h3>POS Terminal</h3>
+                        <p>Real-time retail client checkouts, instant structural product lookup counters, and automated fiscal ledgering.</p>
+                    </div>
+                </div>
+                <button class="btn-cta" id="mainCtaBtn" onclick="switchView('login')">Access Pharmacy Management System Terminal</button>
+            </div>
+        </div>
+
+        <div id="loginView" class="view-section">
+            <div class="login-container card">
+                <div class="login-header">
+                    <h3>Secure System Login</h3>
+                    <p style="color:#7f8c8d; font-size:0.9rem;">Select system tier role to establish authorization session</p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Operational Domain Identity</label>
+                        <select id="loginRole" required>
+                            <option value="admin">System Administrator (Inventory & Stock Controls)</option>
+                            <option value="sales">Sales Associate Terminal (Billing Counter)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Security Key / Password</label>
+                        <input type="password" id="loginPassword" required placeholder="" value="password123">
+                       
+                        
+                    </div>
+                    <button type="submit" class="btn btn-save" style="background: var(--primary, #ff00c3); color: white; border: none; padding: 10px 20px; border-radius: 4px;">Initialize Workspace</button>
+                </form>
+            </div>
+        </div>
+        
+        <div id="adminView" class="view-section">
+            <div class="grid-layout">
+                <div>
+                    <div class="card">
+                        <h3>Add New Medicine Stock</h3>
+                        <form id="medicineForm">
+                            <div class="form-group">
+                                <label>Medicine Name</label>
+                                <input type="text" id="medName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Stock Quantity</label>
+                                <input type="number" id="medQuantity" required min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Price (₹)</label>
+                                <input type="number" id="medPrice" step="0.01" required min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Expiry Date</label>
+                                <input type="date" id="medExpiry" required>
+                            </div>
+                            <button type="submit" class="btn btn-save">Commit Asset into Records</button>
+                        </form>
+                    </div>
+
+                    <div class="card" style="border-top: 4px solid var(--update-theme);">
+                        <h3>Update Complete Medicine Records</h3>
+                        <form id="updateMedicineForm">
+                            <div class="form-group">
+                                <label>Medicine ID to Update</label>
+                                <input type="number" id="updateMedId" required placeholder="Enter ID (e.g., 1)" onchange="fetchMedicineForUpdate(this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label>New Medicine Name</label>
+                                <input type="text" id="updateMedName" required placeholder="Load or type name...">
+                            </div>
+                            <div class="form-group">
+                                <label>New Stock Quantity</label>
+                                <input type="number" id="updateMedQuantity" required min="0" placeholder="Load or type quantity...">
+                            </div>
+                            <div class="form-group">
+                                <label>New Price (₹)</label>
+                                <input type="number" id="updateMedPrice" step="0.01" required min="0" placeholder="Load or type price...">
+                            </div>
+                            <div class="form-group">
+                                <label>New Expiry Date</label>
+                                <input type="date" id="updateMedExpiry" required>
+                            </div>
+                            <button type="submit" class="btn btn-update-submit">Update All Asset Details</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Medicine Inventory</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Stock</th>
+                                <th>Unit Price</th>
+                                <th>Expiry</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="salesView" class="view-section">
+            <div class="card">
+                <h3>Search Medicine</h3>
+                <input type="text" id="salesSearchInput" class="search-box" placeholder="Type medicine name to filter instantly..." oninput="handleSearch(this.value)">
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Medicine Name</th>
+                            <th>Stock Status</th>
+                            <th>Price</th>
+                            <th>Expiry</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesSearchTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="grid-layout">
+                <div class="card">
+                    <h3>Log Counter Transaction</h3>
+                    <form id="salesForm">
+                        <div class="form-group">
+                            <label>Select Target Medicine Item</label>
+                            <select id="salesMedSelect" required>
+                                <option value="">-- Select Product From Dropdown --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity Transacted</label>
+                            <input type="number" id="salesQuantity" required min="1">
+                        </div>
+                        <button type="submit" class="btn btn-sell">Register Retail Cash Transaction</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Historical Sales Ledger Journal</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Txn Ref</th>
+                                <th>Medicine Sold</th>
+                                <th>Units</th>
+                                <th>Total Gross Revenue</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesHistoryTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const MEDICINE_API = 'http://localhost:8082/api/medicines';
+        const SALES_API = 'http://localhost:8082/api/sales';
+
+        // --- Auth Global State ---
+        let currentSessionUser = null; // Stores: null, 'admin', or 'sales'
+
+        function renderNavbar() {
+            const controls = document.getElementById('navControls');
+            const mainCta = document.getElementById('mainCtaBtn');
+            
+            if (!currentSessionUser) {
+                controls.innerHTML = `<button class="btn-login-nav" onclick="switchView('login')">Secure Portal Login</button>`;
+                if(mainCta) mainCta.innerHTML = "Access Enterprise Terminal";
+            } else {
+                if(mainCta) mainCta.innerHTML = "Return to Dashboard Control Room";
+                
+                let userLabel = currentSessionUser === 'admin' ? '🛡️ Administrator' : '💼 Sales staff';
+                let tabsHTML = `<span class="user-badge">${userLabel}</span>`;
+                
+                if (currentSessionUser === 'admin') {
+                    tabsHTML += `<button class="btn-admin-tab" onclick="switchView('admin')">Admin Inventory Panel</button>`;
+                }
+                if (currentSessionUser === 'sales' || currentSessionUser === 'admin') {
+                    tabsHTML += `<button class="btn-sales-tab" onclick="switchView('sales')">Sales Terminal</button>`;
+                }
+                
+                tabsHTML += `<button class="btn-logout" onclick="handleLogout()">Term Session</button>`;
+                controls.innerHTML = tabsHTML;
+            }
+        }
+
+        function switchView(targetView) {
+            // Guard Route Validation Checks
+            if ((targetView === 'admin' && currentSessionUser !== 'admin') || 
+                (targetView === 'sales' && !currentSessionUser)) {
+                alert("Access Denied: Resource parameters require explicit account authentication setup.");
+                switchView('login');
+                return;
+            }
+
+            // Remove active classes from all structures
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.body.className = '';
+            
+            // Activate specific selected window framework 
+            if(targetView === 'home') {
+                document.getElementById('homeView').classList.add('active');
+                document.body.classList.add('active-home');
+            } else if(targetView === 'login') {
+                document.getElementById('loginView').classList.add('active');
+            } else if(targetView === 'admin') {
+                document.getElementById('adminView').classList.add('active');
+                document.body.classList.add('active-admin');
+                loadAdminData();
+            } else if(targetView === 'sales') {
+                document.getElementById('salesView').classList.add('active');
+                document.body.classList.add('active-sales');
+                loadSalesData();
+            }
+            renderNavbar();
+        }
+
+        // ================= AUTH MANAGEMENT IMPLEMENTATION =================
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedRole = document.getElementById('loginRole').value;
+            const passwordInput = document.getElementById('loginPassword').value;
+
+            // Simple sandbox matching key verification layout
+            if(passwordInput === "password123") {
+                currentSessionUser = selectedRole;
+                alert(`Authorization Granted! Opening ${selectedRole.toUpperCase()} console.`);
+                document.getElementById('loginForm').reset();
+                switchView(selectedRole);
+            } else {
+                alert("Security Reject: Cryptographic password signature did not match operational system variables.");
+            }
+        });
+
+        function handleLogout() {
+            currentSessionUser = null;
+            alert("Workspace Session terminated safely.");
+            switchView('home');
+        }
+
+        function formatRupees(amount) {
+            return '₹' + parseFloat(amount).toFixed(2);
+        }
+
+        // ================= ADMIN LOGIC ENGINE =================
+        function loadAdminData() {
+            fetch(MEDICINE_API)
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('adminTableBody');
+                    tbody.innerHTML = '';
+                    data.forEach(med => {
+                        tbody.insertAdjacentHTML('beforeend', `
+                            <tr>
+                                <td>${med.id}</td>
+                                <td><b>${med.name}</b></td>
+                                <td>${med.quantity} units</td>
+                                <td>${formatRupees(med.price)}</td>
+                                <td>${med.expiryDate}</td>
+                                <td>
+                                    <button class="btn" style="background:#e67e22; color:white;" onclick="selectForUpdate(${med.id}, '${escape(med.name)}', ${med.quantity}, ${med.price}, '${med.expiryDate}')">Select</button>
+                                    <button class="btn btn-action-delete" onclick="deleteItem(${med.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                }).catch(err => console.error("Data error pipeline connection interrupted:", err));
+        }
+
+        document.getElementById('medicineForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('medName').value,
+                quantity: parseInt(document.getElementById('medQuantity').value),
+                price: parseFloat(document.getElementById('medPrice').value),
+                expiryDate: document.getElementById('medExpiry').value
+            };
+
+            fetch(MEDICINE_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                document.getElementById('medicineForm').reset();
+                loadAdminData();
+            });
+        });
+
+        function fetchMedicineForUpdate(id) {
+            if(!id) return;
+            fetch(`${MEDICINE_API}/${id}`)
+                .then(res => {
+                    if(!res.ok) throw new Error("Not found");
+                    return res.json();
+                })
+                .then(med => {
+                    document.getElementById('updateMedName').value = med.name;
+                    document.getElementById('updateMedQuantity').value = med.quantity;
+                    document.getElementById('updateMedPrice').value = med.price;
+                    document.getElementById('updateMedExpiry').value = med.expiryDate;
+                })
+                .catch(() => {
+                    alert("Medicine ID not found in inventory!");
+                    document.getElementById('updateMedicineForm').reset();
+                });
+        }
+
+        function selectForUpdate(id, name, quantity, price, expiryDate) {
+            document.getElementById('updateMedId').value = id;
+            document.getElementById('updateMedName').value = unescape(name);
+            document.getElementById('updateMedQuantity').value = quantity;
+            document.getElementById('updateMedPrice').value = price;
+            document.getElementById('updateMedExpiry').value = expiryDate;
+            document.getElementById('updateMedId').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('updateMedicineForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('updateMedId').value;
+            const updatedData = {
+                name: document.getElementById('updateMedName').value,
+                quantity: parseInt(document.getElementById('updateMedQuantity').value),
+                price: parseFloat(document.getElementById('updateMedPrice').value),
+                expiryDate: document.getElementById('updateMedExpiry').value
+            };
+
+            fetch(`${MEDICINE_API}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert("Medicine record updated successfully!");
+                    document.getElementById('updateMedicineForm').reset();
+                    loadAdminData();
+                } else {
+                    alert("Failed to update medicine details.");
+                }
+            });
+        });
+
+        function deleteItem(id) {
+            if(confirm("Confirm asset termination?")) {
+                fetch(`${MEDICINE_API}/${id}`, { method: 'DELETE' }).then(() => loadAdminData());
+            }
+        }
+
+        // ================= SALES LOGIC ENGINE =================
+        function loadSalesData() {
+            fetch(MEDICINE_API)
+                .then(res => res.json())
+                .then(data => {
+                    renderSalesSearchTable(data);
+                    populateSalesDropdown(data);
+                });
+
+            fetch(SALES_API)
+                .then(res => res.json())
+                .then(sales => {
+                    const hBody = document.getElementById('salesHistoryTableBody');
+                    hBody.innerHTML = '';
+                    sales.forEach(s => {
+                        hBody.insertAdjacentHTML('beforeend', `
+                            <tr>
+                                <td>#TX-${s.id}</td>
+                                <td>${s.medicineName}</td>
+                                <td>${s.quantitySold} items</td>
+                                <td><span style="color:#27ae60; font-weight:bold;">${formatRupees(s.totalAmount)}</span></td>
+                                <td>${new Date(s.saleTimestamp).toLocaleString()}</td>
+                            </tr>
+                        `);
+                    });
+                });
+        }
+
+        function handleSearch(query) {
+            fetch(`${MEDICINE_API}?search=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => renderSalesSearchTable(data));
+        }
+
+        function renderSalesSearchTable(data) {
+            const tbody = document.getElementById('salesSearchTableBody');
+            tbody.innerHTML = '';
+            data.forEach(med => {
+                const stockStatus = med.quantity <= 0 ? '<span style="color:red; font-weight:bold;">OUT OF STOCK</span>' : `${med.quantity} remaining`;
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr>
+                        <td>${med.id}</td>
+                        <td><b>${med.name}</b></td>
+                        <td>${stockStatus}</td>
+                        <td>${formatRupees(med.price)}</td>
+                        <td>${med.expiryDate}</td>
+                    </tr>
+                `);
+            });
+        }
+
+        function populateSalesDropdown(data) {
+            const select = document.getElementById('salesMedSelect');
+            select.innerHTML = '<option value="">-- Select Product From Dropdown --</option>';
+            data.forEach(med => {
+                if(med.quantity > 0) {
+                    select.insertAdjacentHTML('beforeend', `<option value="${med.id}">${med.name} (${formatRupees(med.price)} / unit)</option>`);
+                }
+            });
+        }
+
+        document.getElementById('salesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                medicineId: parseInt(document.getElementById('salesMedSelect').value),
+                quantity: parseInt(document.getElementById('salesQuantity').value)
+            };
+
+            fetch(SALES_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(async res => {
+                if(res.ok) {
+                    document.getElementById('salesForm').reset();
+                    loadSalesData();
+                } else {
+                    const textErr = await res.text();
+                    alert("Transaction Refused: " + textErr);
+                }
+            });
+        });
+
+        // Initialize App UI
+        renderNavbar();
+    </script>
+</body>
+</html>
